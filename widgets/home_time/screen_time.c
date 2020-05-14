@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 #include "home_time.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "log.h"
 #include "lvgl.h"
 #include "gui.h"

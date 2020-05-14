@@ -2,3 +2,6 @@
 	path = RIOT
 	url = https://github.com/bosmoment/RIOT.git
 	branch = work/pinetime
+[submodule "wolfboot"]
+	path = wolfboot
+	url = https://github.com/wolfssl/wolfboot

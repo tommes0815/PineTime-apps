@@ -1,6 +1,8 @@
 # name of your application
 APPLICATION = PineTime
 
+WOLFBOOT_OFFSET=32768
+
 BOARD ?= pinetime
 
 # This has to be the absolute path to the RIOT base directory:
@@ -18,5 +20,6 @@ USEWIDGETS += face_sports
 
 # basic modules
 include $(CURDIR)/modules.mk
+include $(CURDIR)/wolfboot.mk
 
 include $(PINETIMEBASE)/Makefile.include

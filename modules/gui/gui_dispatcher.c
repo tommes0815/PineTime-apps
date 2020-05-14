@@ -12,7 +12,7 @@
 #include "thread.h"
 #include "gui.h"
 #include "gui/dispatcher.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 #define DISPATCHER_THREAD_NAME    "gui_disp"
 #define DISPATCHER_THREAD_PRIO    5

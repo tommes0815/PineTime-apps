@@ -10,7 +10,7 @@
 #define _APP_GUI_H
 
 #include <stdint.h>
-#include "hal_input.h"
+#include "hal/hal_input.h"
 #include "lvgl.h"
 #include "event.h"
 #include "event/timeout.h"

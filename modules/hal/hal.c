@@ -7,7 +7,7 @@
  */
 
 #include "board.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "log.h"
 #include "board.h"
 #include "bitarithm.h"

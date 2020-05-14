@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 #include "event.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "gui.h"
 #include "widget.h"
 #include "controller/structs.h"

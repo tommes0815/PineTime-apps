@@ -7,7 +7,7 @@
  */
 
 #include <stdint.h>
-#include "hal.h"
+#include "hal/hal.h"
 #include "log.h"
 #include "lvgl.h"
 #include "gui.h"

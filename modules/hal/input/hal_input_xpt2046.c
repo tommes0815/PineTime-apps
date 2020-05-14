@@ -6,7 +6,7 @@
  * directory for more details.
  */
 
-#include "hal.h"
+#include "hal/hal.h"
 #include "log.h"
 
 #include "xpt2046.h"
