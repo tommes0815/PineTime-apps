@@ -14,7 +14,9 @@
 #include "gui/theme.h"
 #include "controller.h"
 #include "kernel_defines.h"
+#ifdef MODULE_BLEMAN
 #include "bleman.h"
+#endif
 #include "xtimer.h"
 #include "gui.h"
 

@@ -15,7 +15,9 @@
 #include "gui/theme.h"
 #include "controller.h"
 #include "kernel_defines.h"
+#ifdef MODULE_BLEMAN
 #include "bleman.h"
+#endif
 #include "fonts/noto_sans_numeric_80.h"
 
 static const widget_spec_t home_time_spec;
@@ -33,12 +35,14 @@ home_time_widget_t home_time_widget = {
     .widget = {.spec = &home_time_spec }
 };
 
+#ifdef MODULE_BLEMAN
 static const char *_state2color[] = {
     [BLEMAN_BLE_STATE_INACTIVE] = "#000000",
     [BLEMAN_BLE_STATE_DISCONNECTED] = GUI_COLOR_LBL_BASIC_RED,
     [BLEMAN_BLE_STATE_ADVERTISING] = GUI_COLOR_LBL_BASIC_BLUE,
     [BLEMAN_BLE_STATE_CONNECTED] = GUI_COLOR_LBL_DARK_GREEN,
 };
+#endif
 
 static inline home_time_widget_t *_from_widget(widget_t *widget)
 {
@@ -115,6 +119,7 @@ lv_obj_t *screen_time_create(home_time_widget_t *ht)
     return scr;
 }
 
+#ifdef MODULE_BLEMAN
 static void _home_time_set_bt_label(home_time_widget_t *htwidget)
 {
 
@@ -128,6 +133,9 @@ static void _home_time_set_bt_label(home_time_widget_t *htwidget)
                               color);
     }
 }
+#else
+#define _home_time_set_bt_label(x) do{}while(0);
+#endif
 
 static void _home_time_set_power_label(home_time_widget_t *htwidget)
 {

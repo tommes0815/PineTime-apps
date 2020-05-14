@@ -25,7 +25,9 @@ typedef struct _home_time_widget {
     lv_obj_t *lv_date;
     lv_obj_t *lv_ble;
     lv_obj_t *lv_power;
+#ifdef MODULE_BLEMAN
     bleman_ble_state_t ble_state;
+#endif
     /* Shared storage between gui and control */
     controller_time_spec_t time;
     uint32_t millivolts;
