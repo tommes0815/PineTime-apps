@@ -4,9 +4,9 @@
 
 Based on : Bosmoment-style Pinetime firmware applications
 
-- Built on top of [RIOT], an open source embedded operating system
-- Apache [NimBLE] as an open-source bluetooth 5.0 stack.
-- [LittlevGL] for the user interface.
+- Built on top of RIOT, an open source embedded operating system
+- Apache NimBLE as an open-source bluetooth 5.0 stack.
+- LittlevGL for the user interface.
 - Dyne's "Secret pangolin code" DP-3T embedded implementation
 - wolfSSL's wolfCrypt as crypto engine
 
