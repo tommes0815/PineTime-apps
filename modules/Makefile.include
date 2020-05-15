@@ -22,5 +22,8 @@ endif
 ifneq (,$(filter widget,$(USEMODULE)))
   EXTERNAL_MODULE_DIRS += $(PINETIMEBASE)/modules/widget
 endif
+ifneq (,$(filter dp3t,$(USEMODULE)))
+  EXTERNAL_MODULE_DIRS += $(PINETIMEBASE)/modules/dp3t
+endif
 
 INCLUDES += $(addprefix -I, $(addsuffix /include, $(EXTERNAL_MODULE_DIRS)))

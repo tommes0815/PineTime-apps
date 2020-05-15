@@ -10,7 +10,7 @@
 #include "xtimer.h"
 #include "lvgl.h"
 #include "controller.h"
-#include "hal.h"
+#include "hal/hal.h"
 #ifdef MODULE_BLEMAN
 #include "bleman.h"
 #endif
@@ -20,6 +20,10 @@
 
 #include "shell.h"
 #include "msg.h"
+#include "dp3t.h"
+#include "keystore.h"
+#include "ble_scan.h"
+#include "gatt_server.h"
 
 #define MAIN_QUEUE_SIZE     (8)
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
@@ -40,6 +44,16 @@ int main(void)
 #ifdef MODULE_BLEMAN
     bleman_thread_create();
 #endif
+
+
+    /* dp3t */
+    dp3t_start();
+
+    /* Start dp3t gatt advertisements */
+    gatt_server();
+
+    /* Start dp3t scan service  */
+    dp3t_blescan_init();
 
     controller_thread_create();
     /* start shell */

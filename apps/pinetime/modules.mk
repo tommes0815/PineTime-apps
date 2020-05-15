@@ -13,15 +13,23 @@ USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += schedstatistics
 
+# sensors
+#USEMODULE += xpt2046
+#USEMODULE += cst816s
+
 # crypto
-USEPKG += wolfssl
-USEMODULE+=wolfcrypt wolfcrypt_aes_ctr wolfcrypt_aes
+USEPKG+=wolfssl
+USEMODULE+=wolfcrypt
+
+
+# dp3t
+USEMODULE+=dp3t
 
 # network
-USEMODULE += gnrc_netdev_default
-USEMODULE += auto_init_gnrc_netif
-USEMODULE += gnrc_ipv6_default
-USEMODULE += gnrc_sock_udp
+#USEMODULE += gnrc_netdev_default
+#USEMODULE += auto_init_gnrc_netif
+#USEMODULE += gnrc_ipv6_default
+#USEMODULE += gnrc_sock_udp
 USEMODULE += periph_flashpage
 
 # BLE

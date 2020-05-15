@@ -45,18 +45,28 @@ ifneq (,$(filter fsman,$(USEMODULE)))
   USEPKG += littlefs
 endif
 
-ifneq (,$(filter bleman,$(USEMODULE)))
-  USEPKG += nimble
-  USEMODULE += nimble_tinycrypt
-  USEMODULE += nimble_host_store_ram
-  USEMODULE += nimble_host
-  USEMODULE += nimble_controller
-  USEMODULE += nimble_svc_gap
-  USEMODULE += nimble_svc_gatt
-  USEMODULE += bluetil_ad
+#ifneq (,$(filter bleman,$(USEMODULE)))
+#  USEPKG += nimble
+##  USEMODULE += nimble_tinycrypt
+#  USEMODULE += nimble_host_store_ram
+#  USEMODULE += nimble_host
+#  USEMODULE += nimble_controller
+#  USEMODULE += nimble_svc_gap
+#  USEMODULE += nimble_svc_gatt
+#  USEMODULE += bluetil_ad
+#
+#  USEMODULE += core_thread_flags
+#  USEMODULE += luid
+#  USEMODULE += fmt
+#  USEMODULE += event_timeout
+#endif
 
-  USEMODULE += core_thread_flags
-  USEMODULE += luid
-  USEMODULE += fmt
-  USEMODULE += event_timeout
+ifneq (,$(filter dp3t,$(USEMODULE)))
+  USEPKG += wolfssl
+  USEMODULE+=random
+  USEMODULE+=wolfcrypt
+  USEMODULE+=wolfcrypt_hmac
+  USEMODULE+=wolfcrypt_aes_ctr
+  USEMODULE+=wolfcrypt_aes
+  CFLAGS+=-DWOLFSSL_AES_COUNTER -DWOLFSSL_AES_DIRECT
 endif

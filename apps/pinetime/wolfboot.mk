@@ -8,7 +8,7 @@ KEYGENTOOL ?= python3 $(WOLFBOOT)/tools/keytools/keygen.py
 BINFILE ?= $(BINDIR)/$(APPLICATION).bin
 WOLFBOOT_KEYFILE ?= $(WOLFBOOT)/ecc256.der
 WOLFBOOT_BIN ?= $(WOLFBOOT)/wolfboot.bin
-CFLAGS += -I$(WOLFBOOT)/include
+#CFLAGS += -I$(WOLFBOOT)/include
 
 
 
