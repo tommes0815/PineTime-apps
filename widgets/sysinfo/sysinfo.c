@@ -14,6 +14,12 @@
 #include "gui/theme.h"
 #include "controller.h"
 #include "kernel_defines.h"
+#include "net/netif.h"
+#include "net/ipv6/addr.h"
+#include "net/gnrc.h"
+#include "net/gnrc/netif.h"
+#include "net/gnrc/netif/hdr.h"
+
 #ifdef MODULE_BLEMAN
 #include "bleman.h"
 #endif
@@ -50,6 +56,7 @@ static const char *sysinfo_label = ""
     "#" LABEL_LABEL_COLOR "Uptime:# \n %uh %02um %02us\n"
     "#" LABEL_LABEL_COLOR "Battery:# \n %umV\n"
     "#" LABEL_LABEL_COLOR "State:# \n %s\n"
+    "#" LABEL_LABEL_COLOR "IP Address:# \n %s\n"
     "#" LABEL_LABEL_COLOR "Reboot Reason:# \n %s\n"
     "#" LABEL_LABEL_COLOR "Temperature:# \n %" PRIu32"\n";
 
@@ -73,15 +80,26 @@ static void _sysinfo_set_label(sysinfo_widget_t *sysinfo)
     unsigned hours = sysinfo->uptime / 3600;
     unsigned minutes = (sysinfo->uptime / 60) % 60;
     unsigned seconds = sysinfo->uptime % 60;
+    ipv6_addr_t ipv6_addr;;
+    netif_t *netif = NULL;
+    char ipaddr[50]="None";
     const char *power_state = sysinfo->powered ?
         (sysinfo->charging ? sysinfo_charging : sysinfo_charging_complete)
         : sysinfo_on_battery;
+
+    netif = netif_iter(NULL);
+    if (netif) {
+        int res = netif_get_opt(netif, NETOPT_IPV6_ADDR, 0, &ipv6_addr, sizeof(ipv6_addr));
+        if (res > 0)
+            ipv6_addr_to_str(ipaddr, &ipv6_addr, 50);
+    }
     lv_label_set_text_fmt(sysinfo->info_label,
                           sysinfo_label,
                           RIOT_VERSION,
                           hours, minutes, seconds,
                           sysinfo->battery_voltage,
                           power_state,
+                          ipaddr, 
                           sysinfo->reset_string,
                           sysinfo->temperature/4);
 }

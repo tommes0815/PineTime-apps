@@ -8,9 +8,6 @@ KEYGENTOOL ?= python3 $(WOLFBOOT)/tools/keytools/keygen.py
 BINFILE ?= $(BINDIR)/$(APPLICATION).bin
 WOLFBOOT_KEYFILE ?= $(WOLFBOOT)/ecc256.der
 WOLFBOOT_BIN ?= $(WOLFBOOT)/wolfboot.bin
-#CFLAGS += -I$(WOLFBOOT)/include
-
-
 
 export IMAGE_HDR_SIZE ?= 256
 
@@ -23,6 +20,7 @@ wolfboot-create-key: $(WOLFBOOT_KEYFILE)
 $(WOLFBOOT_KEYFILE):
 	make -C $(WOLFBOOT) clean
 	make -C $(WOLFBOOT) distclean
+	cp -f wolfboot.config $(WOLFBOOT)/.config
 	make -C $(WOLFBOOT) TARGET=nrf52 SIGN=ECC256 DEBUG=0 ecc256.der 
 
 wolfboot: wolfboot-create-key link
@@ -48,7 +46,8 @@ $(WOLFBOOT_BIN):
 	@$(COLOR_ECHO) $(SRC)
 	@$(COLOR_ECHO)
 	make -C $(WOLFBOOT) clean
-	make -C $(WOLFBOOT) wolfboot.bin EXT_FLASH=1 SPI_FLASH=1 SIGN=ECC256 TARGET=nrf52 V=1
+	cp -f wolfboot.config $(WOLFBOOT)/.config
+	make -C $(WOLFBOOT) wolfboot.bin
 
 .PHONY: wolfboot-flash-bootloader wolfboot-flash wolfboot-create-key wolfboot-bootloader
 
