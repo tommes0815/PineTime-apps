@@ -58,3 +58,6 @@ dkms.conf
 
 # Ctags
 tags
+
+# Custom
+apps/host-fwupdate/fwupdate

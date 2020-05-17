@@ -14,6 +14,16 @@
 #define CONTROLLER_TIME_RTC     NRF_RTC2
 #define CONTROLLER_TIME_ISR     isr_rtc2
 #define CONTROLLER_TIME_IRQn    RTC2_IRQn
+#define HOUR_BZZ
+
+#ifdef HOUR_BZZ
+static inline void bzz(uint32_t us)
+{
+    gpio_clear(VIBRATOR);
+    xtimer_usleep(us);
+    gpio_set(VIBRATOR);
+}
+#endif
 
 #define COUNTER_MASK            0x00FFFFFF /* 24 bit counter */
 
@@ -138,11 +148,15 @@ void controller_update_time(controller_t *controller)
     while (ts->second >= SECSPERMIN) {
         ts->second -= SECSPERMIN;
         ts->minute++;
-        if (ts->minute >= MINSPERHOUR) {
-            ts->minute = 0;
+        while (ts->minute >= MINSPERHOUR) {
+            ts->minute -= MINSPERHOUR;
             ts->hour++;
-            if (ts->hour >= HOURSPERDAY) {
-                ts->hour = 0;
+#ifdef HOUR_BZZ
+            if ((ts->hour >= 7) && (ts->hour <= 22))
+                    bzz(30000);
+#endif
+            while (ts->hour >= HOURSPERDAY) {
+                ts->hour -= HOURSPERDAY;
                 ts->dayofmonth++;
                 if (ts->dayofmonth > mon_lengths[isleap(ts->year)][ts->month]) {
                     ts->dayofmonth = 1;

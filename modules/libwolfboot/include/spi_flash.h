@@ -1,9 +1,10 @@
-/* target.h
+/* spi_flash.h
  *
- * User configurable build-time options for bootloader and application offsets
+ * Generic implementation of the read/write/erase
+ * functionalities, on top of the spi_drv.h HAL.
  *
- * target.h is automatically generated using the template in target.h.in by running
- * "make config".
+ * Compile with SPI_FLASH=1
+ *
  *
  * Copyright (C) 2020 wolfSSL Inc.
  *
@@ -24,13 +25,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#ifndef H_TARGETS_TARGET_
-#define H_TARGETS_TARGET_
+#ifndef SPI_FLASH_DRI_H
+#define SPI_FLASH_DRI_H
 
-#define WOLFBOOT_SECTOR_SIZE                 0x1000
-#define WOLFBOOT_PARTITION_BOOT_ADDRESS      0x8000
-#define WOLFBOOT_PARTITION_SIZE              0x78000 
-#define WOLFBOOT_PARTITION_UPDATE_ADDRESS    0x387000
-#define WOLFBOOT_PARTITION_SWAP_ADDRESS      0x3FF000
+#define SPI_FLASH_SECTOR_SIZE (4096)
+#define SPI_FLASH_PAGE_SIZE   (256)
 
-#endif /* !H_TARGETS_TARGET_ */
+#ifdef SPI_FLASH
+
+#include <stdint.h>
+
+uint16_t spi_flash_probe(void);
+void spi_release(void);
+
+void spi_flash_sector_erase(uint32_t address);
+int spi_flash_read(uint32_t address, void *data, int len);
+int spi_flash_write(uint32_t address, const void *data, int len);
+
+#else
+
+#define spi_flash_probe() do{}while(0)
+#define spi_release() do{}while(0)
+
+#endif /* SPI_FLASH */
+
+#endif /* !SPI_FLASH_DRI_H */

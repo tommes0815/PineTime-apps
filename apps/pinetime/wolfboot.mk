@@ -46,6 +46,7 @@ $(WOLFBOOT_BIN):
 	@$(COLOR_ECHO) $(SRC)
 	@$(COLOR_ECHO)
 	make -C $(WOLFBOOT) clean
+	cp -f wolfboot.spi_drv_nrf52.h $(WOLFBOOT)/hal/spi/spi_drv_nrf52.h
 	cp -f wolfboot.config $(WOLFBOOT)/.config
 	make -C $(WOLFBOOT) wolfboot.bin
 

@@ -21,5 +21,9 @@
 
 #ifndef GATT_SERVER_H
 #define GATT_SERVER_H
-int gatt_server(void);
+int gatt_dp3t_server(void);
+void gatt_pan_start(const char *name);
+void gatt_pan_stop(void);
+int gatt_pan_advertising(void);
+int gatt_pan_connected(void);
 #endif

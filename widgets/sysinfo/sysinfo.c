@@ -19,6 +19,8 @@
 #include "net/gnrc.h"
 #include "net/gnrc/netif.h"
 #include "net/gnrc/netif/hdr.h"
+#include "wolfboot/wolfboot.h"
+#include "gatt_server.h"
 
 #ifdef MODULE_BLEMAN
 #include "bleman.h"
@@ -50,12 +52,19 @@ static const char *sysinfo_reset_reason[] = {
     [19] = "NFC",
 };
 
+static const char *bt_pan_status[] = {
+    [0] = "Off",
+    [1] = "Advertising",
+    [2] = "Connected",
+};
+
 static const char *sysinfo_label = ""
     "#" LABEL_LABEL_COLOR "RIOT version:# \n %.14s\n"
-    "#" LABEL_LABEL_COLOR "App version:# \n " PINETIME_VERSION "\n"
+    "#" LABEL_LABEL_COLOR "App version:# \n  %08x \n"
     "#" LABEL_LABEL_COLOR "Uptime:# \n %uh %02um %02us\n"
     "#" LABEL_LABEL_COLOR "Battery:# \n %umV\n"
     "#" LABEL_LABEL_COLOR "State:# \n %s\n"
+    "#" LABEL_LABEL_COLOR "Bluetooth PAN:# \n %s\n"
     "#" LABEL_LABEL_COLOR "IP Address:# \n %s\n"
     "#" LABEL_LABEL_COLOR "Reboot Reason:# \n %s\n"
     "#" LABEL_LABEL_COLOR "Temperature:# \n %" PRIu32"\n";
@@ -83,6 +92,7 @@ static void _sysinfo_set_label(sysinfo_widget_t *sysinfo)
     ipv6_addr_t ipv6_addr;;
     netif_t *netif = NULL;
     char ipaddr[50]="None";
+    int pan_st = 0;
     const char *power_state = sysinfo->powered ?
         (sysinfo->charging ? sysinfo_charging : sysinfo_charging_complete)
         : sysinfo_on_battery;
@@ -90,15 +100,29 @@ static void _sysinfo_set_label(sysinfo_widget_t *sysinfo)
     netif = netif_iter(NULL);
     if (netif) {
         int res = netif_get_opt(netif, NETOPT_IPV6_ADDR, 0, &ipv6_addr, sizeof(ipv6_addr));
-        if (res > 0)
+        if (res > 0) {
             ipv6_addr_to_str(ipaddr, &ipv6_addr, 50);
+            if (strlen(ipaddr) > 15) {
+                char tmp[35];
+                strncpy(tmp, ipaddr + 15, 35);
+                ipaddr[15] = '\n';
+                strncpy(ipaddr + 16, tmp, 34);
+            }
+        }
     }
+    if (gatt_pan_advertising())
+        pan_st = 1;
+    if (gatt_pan_connected())
+        pan_st = 2;
+
     lv_label_set_text_fmt(sysinfo->info_label,
                           sysinfo_label,
                           RIOT_VERSION,
+                          wolfBoot_current_firmware_version(),
                           hours, minutes, seconds,
                           sysinfo->battery_voltage,
                           power_state,
+                          bt_pan_status[pan_st],
                           ipaddr, 
                           sysinfo->reset_string,
                           sysinfo->temperature/4);

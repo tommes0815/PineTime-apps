@@ -14,11 +14,19 @@
 #include "dp3t.h"
 #include "keystore.h"
 #include "contactstore.h"
+#include "hal/hal.h"
  
 
 static event_queue_t eq;
 static event_t blescan_evt;
 static event_timeout_t blescan_timeout_evt;
+
+static void bzz(uint32_t us)
+{
+    gpio_clear(VIBRATOR);
+    xtimer_usleep(us);
+    gpio_set(VIBRATOR);
+}
 
 
 /*** SCAN ***/
@@ -57,6 +65,7 @@ static void dp3t_print_entry(int *idx, nimble_scanlist_entry_t *e)
                 peer_ephid[14],
                 peer_ephid[15]); 
         cstore_add(0, 0, (uint8_t) ((0 - e->last_rssi) & 0xFF), (uint8_t *)peer_ephid); 
+        bzz(50000);
     }
 }
 
@@ -87,7 +96,9 @@ static void blescan(event_t *e)
 
 
 #define INITIAL_BLESCAN_INTERVAL 2000
-static char blescan_thread_stack[THREAD_STACKSIZE_MAIN];
+#define BLE_SCAN_STACKSIZE 1024 
+
+static char blescan_thread_stack[BLE_SCAN_STACKSIZE];
 
 void dp3t_blescan_start(void)
 {
@@ -121,7 +132,7 @@ static void *blescan_task(void *arg)
 
 void dp3t_blescan_init(void)
 {
-    thread_create(blescan_thread_stack, THREAD_STACKSIZE_MAIN,
+    thread_create(blescan_thread_stack, BLE_SCAN_STACKSIZE,
             THREAD_PRIORITY_MAIN - 1, THREAD_CREATE_STACKTEST,
             blescan_task, NULL, "blescan");
 }

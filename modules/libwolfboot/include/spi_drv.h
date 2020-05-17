@@ -1,9 +1,11 @@
-/* target.h
+/* spi_drv.h
  *
- * User configurable build-time options for bootloader and application offsets
+ * Driver for the SPI back-end of the SPI_FLASH module.
  *
- * target.h is automatically generated using the template in target.h.in by running
- * "make config".
+ *   * Compile with SPI_FLASH=1
+ *   * Define your platform specific SPI driver in spi_drv_$PLATFORM.c,
+ *     implementing the spi_ calls below.
+ *
  *
  * Copyright (C) 2020 wolfSSL Inc.
  *
@@ -24,13 +26,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#ifndef H_TARGETS_TARGET_
-#define H_TARGETS_TARGET_
+#ifndef SPI_DRV_H_INCLUDED
+#define SPI_DRV_H_INCLUDED
 
-#define WOLFBOOT_SECTOR_SIZE                 0x1000
-#define WOLFBOOT_PARTITION_BOOT_ADDRESS      0x8000
-#define WOLFBOOT_PARTITION_SIZE              0x78000 
-#define WOLFBOOT_PARTITION_UPDATE_ADDRESS    0x387000
-#define WOLFBOOT_PARTITION_SWAP_ADDRESS      0x3FF000
+#include <stdint.h>
 
-#endif /* !H_TARGETS_TARGET_ */
+#include "spi_drv_nrf52.h"
+
+void wb_spi_init(int polarity, int phase);
+void wb_spi_write(const char byte);
+uint8_t wb_spi_read(void);
+void wb_spi_cs_on(int pin);
+void wb_spi_cs_off(int pin);
+
+#endif /* !SPI_DRV_H_INCLUDED */

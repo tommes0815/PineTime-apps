@@ -26,7 +26,7 @@ static uint32_t broadcast_key_len = BROADCAST_KEY_LEN;
 static uint8_t local_beacons_buffer[BEACONS_OBJ_SIZE];
 static beacons_t *beacons = (beacons_t *)(local_beacons_buffer);
 
-#define CONFIG_FLASH_ADDR ((512 - 4)  * (1024)) /* Last sector of flash considering a 512KB boundary */
+#define CONFIG_FLASH_ADDR ((512 - 8)  * (1024)) /* Second last sector of boot partition */
 
 const char dp3t_config_signature[4] = "DP3T";
 
