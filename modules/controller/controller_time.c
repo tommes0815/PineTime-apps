@@ -78,13 +78,25 @@ static const char *mon_long_names[MONSPERYEAR + 1] = {
     "December",
 };
 
+/* 1/256 of second */
+#define CLK_COUNT_IN_NANOSEC 3906250
+
 void controller_time_rtc_inc_compare(void)
 {
-    /* TODO: add fracs compensation support */
+    static uint32_t nanosec_drift = 0;
     uint32_t cur_counter = CONTROLLER_TIME_RTC->COUNTER;
+    nanosec_drift += 375;
 
-    /* Increment to the next 256 multiple */
-    CONTROLLER_TIME_RTC->CC[0] = (cur_counter + 256) & ~(255);
+    /* Add compensation at each read.
+     * COUNTER register sampling takes 375 nsec.
+     * See nRF52 product specification:
+     *  "24.9 Reading the COUNTER register"
+     */
+    if (nanosec_drift  >= CLK_COUNT_IN_NANOSEC) {
+        cur_counter--;
+        nanosec_drift -= CLK_COUNT_IN_NANOSEC;
+    }
+    CONTROLLER_TIME_RTC->CC[0] = (cur_counter + 256);
 }
 
 static void controller_time_match_callback(void)

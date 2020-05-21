@@ -8,7 +8,7 @@ WOLFBOOT_OFFSET=32768
 QUIET=1
 
 # Optimizer CFLAGS
-CFLAGS+=-Os
+CFLAGS+=-O2
 
 BOARD ?= pinetime
 
