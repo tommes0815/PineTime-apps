@@ -80,10 +80,11 @@ static const char *mon_long_names[MONSPERYEAR + 1] = {
 
 /* 1/256 of second */
 #define CLK_COUNT_IN_NANOSEC 3906250
+static uint32_t nanosec_drift = 0;
+static uint32_t fraction_drift = 0;
 
-void controller_time_rtc_inc_compare(void)
+static inline uint32_t rtc_read_counter(void)
 {
-    static uint32_t nanosec_drift = 0;
     uint32_t cur_counter = CONTROLLER_TIME_RTC->COUNTER;
     nanosec_drift += 375;
 
@@ -93,9 +94,15 @@ void controller_time_rtc_inc_compare(void)
      *  "24.9 Reading the COUNTER register"
      */
     if (nanosec_drift  >= CLK_COUNT_IN_NANOSEC) {
-        cur_counter--;
+        fraction_drift++;
         nanosec_drift -= CLK_COUNT_IN_NANOSEC;
     }
+    return cur_counter;
+}
+
+void controller_time_rtc_inc_compare(void)
+{
+    uint32_t cur_counter = rtc_read_counter();
     CONTROLLER_TIME_RTC->CC[0] = (cur_counter + 256);
 }
 
@@ -123,7 +130,7 @@ void controller_time_rtc_set_prescaler(uint32_t prescaler)
 
 uint32_t controller_time_get_ticks(void)
 {
-	return CONTROLLER_TIME_RTC->COUNTER;
+	return rtc_read_counter();
 }
 
 void CONTROLLER_TIME_ISR(void)
@@ -149,13 +156,25 @@ const char *controller_time_month_get_short_name(controller_time_spec_t *time)
 
 void controller_update_time(controller_t *controller)
 {
-    uint32_t counter = CONTROLLER_TIME_RTC->COUNTER;
-    uint32_t fractionals = counter - controller->last_update;
+    static uint32_t fractionals = 0;
+    uint32_t seconds;
+    uint32_t counter = rtc_read_counter();
+
+    fractionals += counter - controller->last_update;
     controller->last_update = counter;
-    unsigned seconds = (fractionals/256);
 
+    /* Adjust according to calculated compensation */
+    fractionals += fraction_drift;
+    fraction_drift = 0;
+
+    /* Convert elapsed time to seconds */
+    seconds = fractionals / 256;
+
+    /* Keep reminder for the next update */
+    fractionals -= (seconds * 256);
+
+    /* Actual time update in the controller */
     controller_time_spec_t *ts = &controller->cur_time;
-
     ts->second += seconds;
     while (ts->second >= SECSPERMIN) {
         ts->second -= SECSPERMIN;
@@ -163,6 +182,8 @@ void controller_update_time(controller_t *controller)
         while (ts->minute >= MINSPERHOUR) {
             ts->minute -= MINSPERHOUR;
             ts->hour++;
+
+            /* Vibrate at every hour 7-22. TODO: make configurable */
 #ifdef HOUR_BZZ
             if ((ts->hour >= 7) && (ts->hour <= 22))
                     bzz(30000);
@@ -187,6 +208,7 @@ void controller_time_set_time(controller_t *controller, controller_time_spec_t *
 {
     /* TODO: take fractionals into account */
     memcpy(&controller->cur_time, time, sizeof(controller_time_spec_t));
+    controller_update_time(controller);
 }
 
 const controller_time_spec_t *controller_time_get_time(controller_t *controller)
