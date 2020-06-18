@@ -14,6 +14,16 @@
 #define CONTROLLER_TIME_RTC     NRF_RTC2
 #define CONTROLLER_TIME_ISR     isr_rtc2
 #define CONTROLLER_TIME_IRQn    RTC2_IRQn
+#define HOUR_BZZ
+
+#ifdef HOUR_BZZ
+static inline void bzz(uint32_t us)
+{
+    gpio_clear(VIBRATOR);
+    xtimer_usleep(us);
+    gpio_set(VIBRATOR);
+}
+#endif
 
 #define COUNTER_MASK            0x00FFFFFF /* 24 bit counter */
 
@@ -68,13 +78,32 @@ static const char *mon_long_names[MONSPERYEAR + 1] = {
     "December",
 };
 
+/* 1/256 of second */
+#define CLK_COUNT_IN_NANOSEC 3906250
+static uint32_t nanosec_drift = 0;
+static uint32_t fraction_drift = 0;
+
+static inline uint32_t rtc_read_counter(void)
+{
+    uint32_t cur_counter = CONTROLLER_TIME_RTC->COUNTER;
+    nanosec_drift += 375;
+
+    /* Add compensation at each read.
+     * COUNTER register sampling takes 375 nsec.
+     * See nRF52 product specification:
+     *  "24.9 Reading the COUNTER register"
+     */
+    if (nanosec_drift  >= CLK_COUNT_IN_NANOSEC) {
+        fraction_drift++;
+        nanosec_drift -= CLK_COUNT_IN_NANOSEC;
+    }
+    return cur_counter;
+}
+
 void controller_time_rtc_inc_compare(void)
 {
-    /* TODO: add fracs compensation support */
-    uint32_t cur_counter = CONTROLLER_TIME_RTC->COUNTER;
-
-    /* Increment to the next 256 multiple */
-    CONTROLLER_TIME_RTC->CC[0] = (cur_counter + 256) & ~(255);
+    uint32_t cur_counter = rtc_read_counter();
+    CONTROLLER_TIME_RTC->CC[0] = (cur_counter + 256);
 }
 
 static void controller_time_match_callback(void)
@@ -101,7 +130,7 @@ void controller_time_rtc_set_prescaler(uint32_t prescaler)
 
 uint32_t controller_time_get_ticks(void)
 {
-	return CONTROLLER_TIME_RTC->COUNTER;
+	return rtc_read_counter();
 }
 
 void CONTROLLER_TIME_ISR(void)
@@ -127,22 +156,40 @@ const char *controller_time_month_get_short_name(controller_time_spec_t *time)
 
 void controller_update_time(controller_t *controller)
 {
-    uint32_t counter = CONTROLLER_TIME_RTC->COUNTER;
-    uint32_t fractionals = counter - controller->last_update;
+    static uint32_t fractionals = 0;
+    uint32_t seconds;
+    uint32_t counter = rtc_read_counter();
+
+    fractionals += counter - controller->last_update;
     controller->last_update = counter;
-    unsigned seconds = (fractionals/256);
 
+    /* Adjust according to calculated compensation */
+    fractionals += fraction_drift;
+    fraction_drift = 0;
+
+    /* Convert elapsed time to seconds */
+    seconds = fractionals / 256;
+
+    /* Keep reminder for the next update */
+    fractionals -= (seconds * 256);
+
+    /* Actual time update in the controller */
     controller_time_spec_t *ts = &controller->cur_time;
-
     ts->second += seconds;
     while (ts->second >= SECSPERMIN) {
         ts->second -= SECSPERMIN;
         ts->minute++;
-        if (ts->minute >= MINSPERHOUR) {
-            ts->minute = 0;
+        while (ts->minute >= MINSPERHOUR) {
+            ts->minute -= MINSPERHOUR;
             ts->hour++;
-            if (ts->hour >= HOURSPERDAY) {
-                ts->hour = 0;
+
+            /* Vibrate at every hour 7-22. TODO: make configurable */
+#ifdef HOUR_BZZ
+            if ((ts->hour >= 7) && (ts->hour <= 22))
+                    bzz(30000);
+#endif
+            while (ts->hour >= HOURSPERDAY) {
+                ts->hour -= HOURSPERDAY;
                 ts->dayofmonth++;
                 if (ts->dayofmonth > mon_lengths[isleap(ts->year)][ts->month]) {
                     ts->dayofmonth = 1;
@@ -161,6 +208,7 @@ void controller_time_set_time(controller_t *controller, controller_time_spec_t *
 {
     /* TODO: take fractionals into account */
     memcpy(&controller->cur_time, time, sizeof(controller_time_spec_t));
+    controller_update_time(controller);
 }
 
 const controller_time_spec_t *controller_time_get_time(controller_t *controller)

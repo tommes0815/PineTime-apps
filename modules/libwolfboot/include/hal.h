@@ -1,9 +1,6 @@
-/* target.h
+/* hal.h
  *
- * User configurable build-time options for bootloader and application offsets
- *
- * target.h is automatically generated using the template in target.h.in by running
- * "make config".
+ * The HAL API definitions.
  *
  * Copyright (C) 2020 wolfSSL Inc.
  *
@@ -24,13 +21,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#ifndef H_TARGETS_TARGET_
-#define H_TARGETS_TARGET_
+#ifndef H_HAL_
+#define H_HAL_
 
-#define WOLFBOOT_SECTOR_SIZE                 0x1000
-#define WOLFBOOT_PARTITION_BOOT_ADDRESS      0x8000
-#define WOLFBOOT_PARTITION_SIZE              0x78000 
-#define WOLFBOOT_PARTITION_UPDATE_ADDRESS    0x387000
-#define WOLFBOOT_PARTITION_SWAP_ADDRESS      0x3FF000
+#include <inttypes.h>
 
-#endif /* !H_TARGETS_TARGET_ */
+#include "target.h"
+#include "nvmc.h"
+#include "mtd.h"
+
+extern mtd_dev_t *mtd0;
+
+#define hal_flash_write(a,d,l) flash_write(a,d,l)
+#define hal_flash_erase(a,l)   flash_erase(a,l)
+#define hal_flash_unlock() do{}while(0)
+#define hal_flash_lock() do{}while(0)
+
+#include "spi_flash.h"
+#define ext_flash_lock() do{}while(0)
+#define ext_flash_unlock() do{}while(0)
+#define ext_flash_read(dst, addr, sz) mtd_read(mtd0, addr, dst, sz)
+#define ext_flash_write(src, addr, sz)  mtd_write(mtd0, addr, src, sz)
+#define ext_flash_erase(a,l)  mtd_erase(mtd0, a, l)
+
+
+#endif /* H_HAL_ */

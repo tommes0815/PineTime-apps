@@ -10,7 +10,7 @@ USEMODULE += util
 
 USEMODULE += shell
 USEMODULE += shell_commands
-USEMODULE += ps
+#USEMODULE += ps
 #USEMODULE += schedstatistics
 
 # sensors
@@ -25,12 +25,17 @@ USEMODULE+=wolfcrypt
 # dp3t
 USEMODULE+=dp3t
 
+USEMODULE+=mtd
+USEMODULE+=newlib
+
 # network
 USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 USEMODULE += gnrc_ipv6_default
+USEMODULE += gnrc_icmpv6
 USEMODULE += gnrc_sock_udp
-USEMODULE += periph_flashpage
+USEMODULE += sntp
+#USEMODULE += periph_flashpage
 
 # BLE
 USEPKG += nimble
@@ -38,3 +43,6 @@ USEMODULE += nimble_scanner
 USEMODULE += nimble_scanlist
 USEMODULE += nimble_svc_gap
 USEMODULE += nimble_svc_gatt
+
+# update/secure boot
+USEMODULE += libwolfboot

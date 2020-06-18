@@ -1,13 +1,4 @@
-/* target.h
- *
- * User configurable build-time options for bootloader and application offsets
- *
- * target.h is automatically generated using the template in target.h.in by running
- * "make config".
- *
- * Copyright (C) 2020 wolfSSL Inc.
- *
- * This file is part of wolfBoot.
+/* spi_drv_nrf52.h
  *
  * wolfBoot is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +15,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#ifndef H_TARGETS_TARGET_
-#define H_TARGETS_TARGET_
+#ifndef SPI_DRV_NRF52_H_INCLUDED
+#define SPI_DRV_NRF52_H_INCLUDED
+#include <stdint.h>
+/** SPI settings **/
 
-#define WOLFBOOT_SECTOR_SIZE                 0x1000
-#define WOLFBOOT_PARTITION_BOOT_ADDRESS      0x8000
-#define WOLFBOOT_PARTITION_SIZE              0x78000 
-#define WOLFBOOT_PARTITION_UPDATE_ADDRESS    0x387000
-#define WOLFBOOT_PARTITION_SWAP_ADDRESS      0x3FF000
 
-#endif /* !H_TARGETS_TARGET_ */
+#define GPIO_BASE (0x50000000)
+#define GPIO_OUT        *((volatile uint32_t *)(GPIO_BASE + 0x504))
+#define GPIO_OUTSET     *((volatile uint32_t *)(GPIO_BASE + 0x508))
+#define GPIO_OUTCLR     *((volatile uint32_t *)(GPIO_BASE + 0x50C))
+#define GPIO_DIRSET     *((volatile uint32_t *)(GPIO_BASE + 0x518))
+#define GPIO_PIN_CNF     ((volatile uint32_t *)(GPIO_BASE + 0x700)) // Array
+
+#define GPIO_CNF_IN 0
+#define GPIO_CNF_OUT 3
+
+
+/* Pinout (P0.x) */
+#define SPI_SCLK_PIN 2
+#define SPI_MISO_PIN 4
+#define SPI_MOSI_PIN 3
+#define SPI_CS_PIN 5
+
+#define SPI_CS_FLASH SPI_CS_PIN
+
+
+
+#endif

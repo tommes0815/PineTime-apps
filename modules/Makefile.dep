@@ -70,3 +70,7 @@ ifneq (,$(filter dp3t,$(USEMODULE)))
   USEMODULE+=wolfcrypt_aes
   CFLAGS+=-DWOLFSSL_AES_COUNTER -DWOLFSSL_AES_DIRECT
 endif
+
+ifneq (,$(filter libwolfboot,$(USEMODULE)))
+  CFLAGS+=-DWOLFBOOT_SIGN_ECC256 -DPLATFORM_nrf52 -DWOLFBOOT_HASH_SHA256 -DSPI_FLASH=1 
+endif
